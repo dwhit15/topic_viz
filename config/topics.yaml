@@ -1,0 +1,2 @@
+use_fields:
+   - "imu/imu/linear_acceleration"

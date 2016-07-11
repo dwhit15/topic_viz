@@ -22,8 +22,6 @@ import inspect
 from geometry_msgs.msg import Vector3, Quaternion
 from genpy.rostime import Time as ros_time
 
-from bag_tools import *
-
 import numpy as np
 import rosbag
 from geometry_msgs.msg import Vector3, Quaternion
@@ -258,14 +256,18 @@ class msg_data():
             self.name = string.rstrip(bag_name, ".bag")
 
             # get list of topics from the bag
+            # topic_list = []
+            # for topic, msg, t in bag_contents:
+            #     if topic not in self.data_dict.keys():
+            #         topic_list.append(topic)
             topic_list = []
             for topic, msg, t in bag_contents:
-                if topic not in self.data_dict.keys():
+                if topic not in topic_list:
                     topic_list.append(topic)
 
+            print topic_list
+
             # loop through all topics and store data
-            # TODO there is probably a cleaner way to pull the data out of
-            # these bags and store it
             for topic_name in topic_list:
                 # look through the message and "figure out" the way the data
                 # is structured (this structure is stored in field_dict)
@@ -275,7 +277,7 @@ class msg_data():
                 # if there is no header, than there are no time stamps, so
                 # don't save this topic
                 if "header" not in field_dict.keys():
-                    print "Topic %s does not have a header. Ignoring this topic". %(topic_name)
+                    print "Topic %s does not have a header. Ignoring this topic." %(topic_name)
                     continue
 
                 # initialize storage for this topic
@@ -285,6 +287,7 @@ class msg_data():
                 self.data_dict[topic_name]["info"]["num_msgs"] = bag.get_message_count(topic_name)
                 for subtopic, msg, t in bag.read_messages(topic_name):
                     self.pull_data_from_fields(self.data_dict[topic_name]["data"],field_dict,"",msg)
+
 
             bag.close()
             print "Done reading all bag files."
